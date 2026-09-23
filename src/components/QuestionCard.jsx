@@ -1,3 +1,5 @@
+import LivesIndicator from './LivesIndicator'
+
 const DIFFICULTY_STYLES = {
   easy: 'bg-emerald-100 text-emerald-700',
   medium: 'bg-amber-100 text-amber-700',
@@ -34,24 +36,36 @@ export default function QuestionCard({
   questionIndex,
   totalQuestions,
   selected,
+  lives,
+  maxLives,
   onSelect,
   onNext,
 }) {
   const isLast = questionIndex === totalQuestions - 1
   const answered = selected !== null
   const isCorrect = answered && selected === question.correctAnswer
+  const outOfLives = lives <= 0
+
+  const nextLabel = outOfLives
+    ? 'Continuar'
+    : isLast
+      ? 'Ver resultado'
+      : 'Siguiente pregunta'
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8">
-      <div className="w-full max-w-2xl">
-        <div className="mb-4 flex items-center justify-between text-sm font-medium text-slate-500">
-          <span>
-            Pregunta{' '}
-            <span className="font-bold text-slate-700">
-              {questionIndex + 1}
-            </span>{' '}
-            de {totalQuestions}
-          </span>
+      <div className="w-full max-w-2xl animate-slide-in-right animate-duration-normal">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-sm font-medium text-slate-500">
+          <div className="flex items-center gap-4">
+            <span>
+              Pregunta{' '}
+              <span className="font-bold text-slate-700">
+                {questionIndex + 1}
+              </span>{' '}
+              de {totalQuestions}
+            </span>
+            <LivesIndicator lives={lives} maxLives={maxLives} />
+          </div>
           <div className="flex items-center gap-2">
             {question.type === 'clinic' && (
               <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">
@@ -91,7 +105,7 @@ export default function QuestionCard({
 
           {answered && (
             <div
-              className={`mt-6 rounded-lg border p-4 ${
+              className={`mt-6 animate-fade-in-up animate-duration-fast rounded-lg border p-4 ${
                 isCorrect
                   ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
                   : 'border-rose-200 bg-rose-50 text-rose-800'
@@ -101,10 +115,19 @@ export default function QuestionCard({
                 {isCorrect ? '¡Correcto!' : 'Incorrecto'}
               </p>
               {!isCorrect && (
-                <p className="mt-1 text-sm">
-                  La respuesta correcta es:{' '}
-                  {question.options[question.correctAnswer]}
-                </p>
+                <>
+                  <p className="mt-1 text-sm">
+                    La respuesta correcta es:{' '}
+                    {question.options[question.correctAnswer]}
+                  </p>
+                  <p className="mt-2 text-sm font-semibold">
+                    {outOfLives
+                      ? 'Perdiste tu última vida: no te quedan más intentos.'
+                      : `−1 vida · te quedan ${lives} ${
+                          lives === 1 ? 'vida' : 'vidas'
+                        }`}
+                  </p>
+                </>
               )}
             </div>
           )}
@@ -115,7 +138,7 @@ export default function QuestionCard({
               onClick={onNext}
               className="mt-6 w-full rounded-lg bg-slate-800 px-6 py-3 font-semibold text-white transition-colors hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
             >
-              {isLast ? 'Ver resultado' : 'Siguiente pregunta'}
+              {nextLabel}
             </button>
           )}
         </div>

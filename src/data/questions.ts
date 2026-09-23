@@ -4492,6 +4492,19 @@ function pickRandom(items: Question[], count: number): Question[] {
   return shuffle(items).slice(0, count);
 }
 
+/**
+ * Baraja las opciones de una pregunta sin mutar el original.
+ * Se remapea `correctAnswer` siguiendo el índice original, de modo que la
+ * respuesta correcta puede caer en cualquier posición (A, B, C o D).
+ */
+function shuffleOptions(question: Question): Question {
+  const order = shuffle(question.options.map((_, index) => index));
+  const options = order.map((index) => question.options[index]);
+  const correctAnswer = order.indexOf(question.correctAnswer);
+
+  return { ...question, options, correctAnswer };
+}
+
 function pickByTypeAndDifficulty(
   type: QuestionType,
   difficulty: Difficulty,
@@ -4530,5 +4543,9 @@ export function buildQuiz(): Question[] {
     );
   }
 
-  return shuffle([...normalSelected, ...clinicSelected]);
+  // Cada pregunta se devuelve con sus opciones barajadas y `correctAnswer`
+  // reasignado a la posición nueva (además de barajar el orden del quiz).
+  return shuffle(
+    [...normalSelected, ...clinicSelected].map(shuffleOptions),
+  );
 }
