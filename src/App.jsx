@@ -3,6 +3,7 @@ import WelcomeScreen from './components/WelcomeScreen'
 import QuestionCard from './components/QuestionCard'
 import GameOverScreen from './components/GameOverScreen'
 import ResultScreen from './components/ResultScreen'
+import RankingScreen from './components/RankingScreen'
 import { buildQuiz, QUIZ_SIZE } from './data/questions'
 
 const MAX_LIVES = 3
@@ -85,8 +86,13 @@ export default function App() {
         maxLives={MAX_LIVES}
         notice={notice}
         onStart={handleStart}
+        onViewRanking={() => setView('ranking')}
       />
     )
+  }
+
+  if (view === 'ranking') {
+    return <RankingScreen onBack={() => setView('welcome')} />
   }
 
   if (view === 'gameover') {

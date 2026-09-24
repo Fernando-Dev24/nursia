@@ -1,8 +1,8 @@
 const inputClass = (hasError) =>
-  `w-full rounded-lg border px-4 py-3 text-sm text-slate-800 placeholder-slate-400 transition-colors focus:outline-none focus:ring-2 ${
+  `w-full rounded-xl border-2 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 transition-colors focus:outline-none focus:ring-4 ${
     hasError
-      ? 'border-rose-400 bg-rose-50/50 focus:border-rose-500 focus:ring-rose-300'
-      : 'border-slate-200 bg-white hover:border-slate-300 focus:border-emerald-500 focus:ring-emerald-300'
+      ? 'border-destructive/40 bg-rose-50/40 focus:border-destructive focus:ring-destructive/20'
+      : 'border-border bg-white hover:border-slate-300 focus:border-accent focus:ring-accent/20'
   }`
 
 export default function PlayerForm({
@@ -27,7 +27,9 @@ export default function PlayerForm({
   return (
     <form onSubmit={handleSubmit} noValidate className="text-left">
       <label className="block" htmlFor="player-name">
-        <span className="text-sm font-semibold text-slate-700">Nombre</span>
+        <span className="text-xs font-black uppercase tracking-widest text-slate-500">
+          Nombre
+        </span>
         <input
           id="player-name"
           type="text"
@@ -41,13 +43,15 @@ export default function PlayerForm({
         />
       </label>
       {errors.name && (
-        <p className="mt-1.5 text-xs font-medium text-rose-600" role="alert">
+        <p className="mt-1.5 text-xs font-bold text-destructive" role="alert">
           {errors.name}
         </p>
       )}
 
       <label className="mt-4 block" htmlFor="player-email">
-        <span className="text-sm font-semibold text-slate-700">Correo</span>
+        <span className="text-xs font-black uppercase tracking-widest text-slate-500">
+          Correo
+        </span>
         <input
           id="player-email"
           type="email"
@@ -61,7 +65,7 @@ export default function PlayerForm({
         />
       </label>
       {errors.email && (
-        <p className="mt-1.5 text-xs font-medium text-rose-600" role="alert">
+        <p className="mt-1.5 text-xs font-bold text-destructive" role="alert">
           {errors.email}
         </p>
       )}
@@ -74,12 +78,12 @@ export default function PlayerForm({
       <button
         type="submit"
         disabled={submitting}
-        className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+        className="game-btn game-btn-accent mt-4 w-full"
       >
         {submitting && (
           <span
             aria-hidden="true"
-            className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+            className="h-4 w-4 animate-spin rounded-full border-2 border-accent-foreground/30 border-t-accent-foreground"
           />
         )}
         {submitting ? 'Guardando…' : submitLabel}

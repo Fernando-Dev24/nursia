@@ -1,9 +1,9 @@
 import LivesIndicator from './LivesIndicator'
 
 const DIFFICULTY_STYLES = {
-  easy: 'bg-emerald-100 text-emerald-700',
-  medium: 'bg-amber-100 text-amber-700',
-  hard: 'bg-rose-100 text-rose-700',
+  easy: 'bg-success/15 text-success border-success/40',
+  medium: 'bg-warning/15 text-warning border-warning/40',
+  hard: 'bg-destructive/10 text-destructive border-destructive/30',
 }
 
 const DIFFICULTY_LABELS = {
@@ -13,22 +13,21 @@ const DIFFICULTY_LABELS = {
 }
 
 function getOptionClass(optionIndex, selected, question) {
-  const base =
-    'w-full rounded-lg border px-4 py-3 text-left font-medium transition-colors focus:outline-none'
+  const base = 'w-full rounded-xl border-2 px-4 py-3.5 text-left font-semibold transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-accent/25'
 
   if (selected === null) {
-    return `${base} border-slate-200 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50`
+    return `${base} border-border bg-white text-slate-800 hover:-translate-y-0.5 hover:border-accent hover:shadow-lg hover:shadow-accent/10`
   }
 
   if (optionIndex === question.correctAnswer) {
-    return `${base} border-emerald-500 bg-emerald-50 text-emerald-800`
+    return `${base} border-success bg-success/10 text-slate-800 shadow-lg shadow-success/10`
   }
 
   if (optionIndex === selected) {
-    return `${base} border-rose-500 bg-rose-50 text-rose-800`
+    return `${base} border-destructive bg-destructive/5 text-slate-800`
   }
 
-  return `${base} border-slate-200 bg-white text-slate-400`
+  return `${base} border-border bg-white text-slate-400 opacity-60`
 }
 
 export default function QuestionCard({
@@ -46,6 +45,10 @@ export default function QuestionCard({
   const isCorrect = answered && selected === question.correctAnswer
   const outOfLives = lives <= 0
 
+  const progress = Math.round(
+    ((questionIndex + (answered ? 1 : 0)) / totalQuestions) * 100,
+  )
+
   const nextLabel = outOfLives
     ? 'Continuar'
     : isLast
@@ -53,40 +56,54 @@ export default function QuestionCard({
       : 'Siguiente pregunta'
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8">
-      <div className="w-full max-w-2xl animate-slide-in-right animate-duration-normal">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-sm font-medium text-slate-500">
-          <div className="flex items-center gap-4">
-            <span>
-              Pregunta{' '}
-              <span className="font-bold text-slate-700">
-                {questionIndex + 1}
-              </span>{' '}
-              de {totalQuestions}
-            </span>
-            <LivesIndicator lives={lives} maxLives={maxLives} />
+    <div className="game-shell">
+      <div className="w-full max-w-2xl">
+        <div className="rounded-t-3xl border-2 border-b-0 border-accent/25 bg-primary px-4 pt-4 sm:px-6">
+          <div className="flex items-center justify-between gap-3 pb-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <img
+                src="/logo.png"
+                alt="Logo Feria de Logros Escolar"
+                className="h-9 w-auto shrink-0 object-contain"
+              />
+              <div className="min-w-0">
+                <p className="truncate text-sm font-black uppercase tracking-wide text-white">
+                  Pregunta {questionIndex + 1} / {totalQuestions}
+                </p>
+                <div className="mt-1.5 h-2 w-full min-w-40 overflow-hidden rounded-full bg-white/15">
+                  <div
+                    className="h-full rounded-full bg-accent transition-[width] duration-500 ease-out"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+            <LivesIndicator lives={lives} maxLives={maxLives} tone="hud" />
           </div>
-          <div className="flex items-center gap-2">
+        </div>
+
+        <div className="animate-slide-in-right animate-duration-normal rounded-b-3xl border-2 border-t-0 border-accent/25 bg-white p-5 shadow-[0_24px_60px_-24px_rgba(3,10,30,0.85)] sm:p-8">
+          <div className="mb-4 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wide">
             {question.type === 'clinic' && (
-              <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">
+              <span className="game-pill border-2 border-accent/40 bg-accent/10 text-accent-foreground">
                 Caso Clínico
               </span>
             )}
-            <span className="rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700">
+            <span className="game-pill border-2 border-primary/15 bg-primary/10 text-primary">
               {question.category}
             </span>
             <span
-              className={`rounded-full px-3 py-1 text-xs font-semibold ${DIFFICULTY_STYLES[question.difficulty]}`}
+              className={`game-pill border-2 ${DIFFICULTY_STYLES[question.difficulty]}`}
             >
               {DIFFICULTY_LABELS[question.difficulty]}
             </span>
           </div>
-        </div>
 
-        <div className="rounded-2xl bg-white p-8 shadow-sm border border-slate-200">
-          <h2 className="text-2xl font-bold text-slate-800">{question.question}</h2>
+          <h2 className="text-lg font-bold leading-snug text-slate-800 sm:text-2xl">
+            {question.question}
+          </h2>
 
-          <div className="mt-6 flex flex-col gap-3">
+          <div className="mt-5 flex flex-col gap-2.5">
             {question.options.map((option, index) => (
               <button
                 key={index}
@@ -95,7 +112,7 @@ export default function QuestionCard({
                 onClick={() => onSelect(index)}
                 className={getOptionClass(index, selected, question)}
               >
-                <span className="mr-3 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">
+                <span className="mr-3 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-sm font-black text-accent">
                   {String.fromCharCode(65 + index)}
                 </span>
                 {option}
@@ -105,22 +122,24 @@ export default function QuestionCard({
 
           {answered && (
             <div
-              className={`mt-6 animate-fade-in-up animate-duration-fast rounded-lg border p-4 ${
+              className={`mt-5 animate-fade-in-up animate-duration-fast rounded-xl border-2 p-4 ${
                 isCorrect
-                  ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                  : 'border-rose-200 bg-rose-50 text-rose-800'
+                  ? 'border-success/40 bg-success/10'
+                  : 'border-destructive/30 bg-destructive/5'
               }`}
             >
-              <p className="font-semibold">
+              <p className="font-black uppercase tracking-wide text-slate-900">
                 {isCorrect ? '¡Correcto!' : 'Incorrecto'}
               </p>
               {!isCorrect && (
                 <>
-                  <p className="mt-1 text-sm">
+                  <p className="mt-1 text-sm text-slate-600">
                     La respuesta correcta es:{' '}
-                    {question.options[question.correctAnswer]}
+                    <span className="font-bold text-slate-900">
+                      {question.options[question.correctAnswer]}
+                    </span>
                   </p>
-                  <p className="mt-2 text-sm font-semibold">
+                  <p className="mt-2 text-sm font-bold text-destructive">
                     {outOfLives
                       ? 'Perdiste tu última vida: no te quedan más intentos.'
                       : `−1 vida · te quedan ${lives} ${
@@ -136,7 +155,7 @@ export default function QuestionCard({
             <button
               type="button"
               onClick={onNext}
-              className="mt-6 w-full rounded-lg bg-slate-800 px-6 py-3 font-semibold text-white transition-colors hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+              className="game-btn game-btn-accent mt-5 w-full text-base"
             >
               {nextLabel}
             </button>

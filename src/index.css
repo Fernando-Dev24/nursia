@@ -1,6 +1,174 @@
 @import "tailwindcss";
 @import "tailwind-animations";
 
+@theme {
+  --color-background: #f8fafc;
+  --color-foreground: #0f172a;
+
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+
+  --color-primary: #0f2b60;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #1e447f;
+  --color-secondary-foreground: #ffffff;
+
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
+
+  --color-accent: #00b7fd;
+  --color-accent-foreground: #061a42;
+
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+
+  --color-border: #d7dee8;
+  --color-input: #d7dee8;
+  --color-ring: #00b7fd;
+
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    color: #ffffff;
+    background-color: #0f2b60;
+    background-image:
+      radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      radial-gradient(900px 520px at 85% -5%, rgba(0, 183, 253, 0.35), transparent 60%),
+      radial-gradient(700px 520px at -10% 40%, rgba(30, 68, 127, 0.9), transparent 65%),
+      linear-gradient(165deg, #0f2b60 0%, #0a1e4e 55%, #06122e 100%);
+    background-size: 26px 26px, auto, auto, auto;
+    background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer components {
+  .game-shell {
+    display: flex;
+    width: 100%;
+    min-height: 100dvh;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .game-shell {
+      padding-top: 3rem;
+      padding-bottom: 3rem;
+    }
+  }
+
+  .game-card {
+    overflow: hidden;
+    border-radius: 1.5rem;
+    border: 2px solid rgba(0, 183, 253, 0.25);
+    background-color: var(--color-card);
+    color: var(--color-card-foreground);
+    box-shadow:
+      0 24px 60px -24px rgba(3, 10, 30, 0.85),
+      0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  }
+
+  .game-btn {
+    --btn-shadow: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 0;
+    border-radius: 1rem;
+    padding: 0.9rem 1.35rem;
+    font-size: 0.875rem;
+    font-weight: 900;
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 5px 0 var(--btn-shadow);
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease,
+      filter 150ms ease,
+      transform 80ms ease,
+      box-shadow 80ms ease;
+  }
+
+  .game-btn:focus-visible {
+    outline: none;
+    box-shadow:
+      0 5px 0 var(--btn-shadow),
+      0 0 0 4px rgba(0, 183, 253, 0.45);
+  }
+
+  .game-btn:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 var(--btn-shadow);
+  }
+
+  .game-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .game-btn-primary {
+    --btn-shadow: #061a42;
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+  }
+
+  .game-btn-primary:hover:not(:disabled) {
+    background-color: var(--color-secondary);
+  }
+
+  .game-btn-accent {
+    --btn-shadow: #0090c4;
+    background-color: var(--color-accent);
+    color: var(--color-accent-foreground);
+  }
+
+  .game-btn-accent:hover:not(:disabled) {
+    filter: brightness(1.07);
+  }
+
+  .game-btn-light {
+    --btn-shadow: #d7dee8;
+    border: 2px solid var(--color-border);
+    background-color: #ffffff;
+    color: #475569;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .game-btn-light:hover:not(:disabled) {
+    border-color: #cbd5e1;
+    background-color: var(--color-background);
+  }
+
+  .game-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 9999px;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.6875rem;
+    font-weight: 900;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+}
+
 /* Accesibilidad: quien prefiera movimiento reducido no recibe animaciones. */
 @media (prefers-reduced-motion: reduce) {
   *,

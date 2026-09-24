@@ -9,45 +9,57 @@ export default function GameOverScreen({
   onHome,
 }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-      <div className="w-full max-w-md animate-zoom-in rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-        <div className="mb-4 flex justify-center">
-          <LivesIndicator lives={0} maxLives={maxLives} />
+    <div className="game-shell">
+      <div className="w-full max-w-md">
+        <div className="game-card animate-zoom-in p-8 text-center">
+          <div className="mb-4 flex justify-center">
+            <LivesIndicator lives={0} maxLives={maxLives} />
+          </div>
+
+          <span className="game-pill mb-3 border-2 border-destructive/30 bg-destructive/10 text-destructive">
+            Sin vidas
+          </span>
+          <h1 className="text-3xl font-black uppercase tracking-tight text-slate-900">
+            Fin del juego
+          </h1>
+          <p className="mt-3 text-sm text-slate-500">
+            Te quedaste sin vidas. Llevabas{' '}
+            <span className="font-bold text-slate-900">
+              {score} de {totalQuestions}
+            </span>{' '}
+            puntos con {answered} {answered === 1 ? 'pregunta' : 'preguntas'}{' '}
+            respondidas.
+          </p>
+
+          <div className="mt-5 inline-flex items-center gap-2 rounded-2xl border-2 border-accent/30 bg-accent/10 px-6 py-3">
+            <span className="text-2xl font-black text-accent-foreground">
+              {score}
+            </span>
+            <span className="text-xs font-black uppercase tracking-widest text-accent-foreground">
+              puntos
+            </span>
+          </div>
+
+          <p className="mt-4 text-sm text-slate-400">
+            El ranking solo se guarda al completar las {totalQuestions}{' '}
+            preguntas. ¡Inténtalo de nuevo!
+          </p>
+
+          <button
+            type="button"
+            onClick={onRetry}
+            className="game-btn game-btn-accent mt-6 w-full text-base"
+          >
+            Reintentar quiz
+          </button>
+          <button
+            type="button"
+            onClick={onHome}
+            className="game-btn game-btn-light mt-3 w-full"
+          >
+            Volver al inicio
+          </button>
         </div>
-
-        <span className="inline-flex rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">
-          Sin vidas
-        </span>
-        <h1 className="mt-3 text-3xl font-bold text-slate-800">
-          Fin del juego
-        </h1>
-        <p className="mt-2 text-slate-500">
-          Te quedaste sin vidas. Llevabas{' '}
-          <span className="font-semibold text-slate-700">
-            {score} de {totalQuestions}
-          </span>{' '}
-          puntos con {answered} {answered === 1 ? 'pregunta' : 'preguntas'}{' '}
-          respondidas.
-        </p>
-        <p className="mt-4 text-sm text-slate-400">
-          El ranking solo se guarda al completar las {totalQuestions} preguntas.
-          ¡Intentalo de nuevo!
-        </p>
-
-        <button
-          type="button"
-          onClick={onRetry}
-          className="mt-6 w-full rounded-lg bg-slate-800 px-6 py-3 font-semibold text-white transition-colors hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
-        >
-          Reintentar quiz
-        </button>
-        <button
-          type="button"
-          onClick={onHome}
-          className="mt-3 w-full rounded-lg border border-slate-200 px-6 py-3 font-semibold text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2"
-        >
-          Volver al inicio
-        </button>
       </div>
     </div>
   )

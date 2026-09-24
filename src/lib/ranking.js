@@ -1,8 +1,16 @@
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  serverTimestamp,
+  setDoc,
+} from 'firebase/firestore'
 import { db, isFirebaseConfigured } from './firebase'
 
 export const RANKING_COLLECTION = 'ranking'
 export const RANKING_TIMEOUT_MS = 12000
+export const RANKING_TOP_SIZE = 50
 
 const ERROR_MESSAGES = {
   'config-missing':
@@ -177,5 +185,79 @@ export async function saveRanking({ name, email, score, totalQuestions, livesLef
   return {
     status: 'created',
     message: `¡Puntaje guardado! Quedaste en el ranking con ${score} puntos.`,
+  }
+}
+
+/** Convierte Timestamp | Date | number | string a milisegundos (0 si falta). */
+function toMillis(value) {
+  if (!value) return 0
+  if (typeof value.toMillis === 'function') return value.toMillis()
+  if (value instanceof Date) return value.getTime()
+  const parsed = Date.parse(value)
+  return Number.isNaN(parsed) ? 0 : parsed
+}
+
+/**
+ * Consulta el ranking histórico completo y devuelve:
+ *  - top: los primeros RANKING_TOP_SIZE (50) jugadores con mejor score,
+ *    desempatados por el timestamp de registro (más antiguo primero);
+ *  - total: cantidad total de registros;
+ *  - position / player: lugar (1-based) y datos del jugador cuyo correo se
+ *    proporcionó, o null si no existe / no se consultó.
+ *
+ * Orden: score desc → createdAt asc → email asc (estable).
+ * Error → Lanza excepción con `code` (interpretar con getRankingErrorMessage).
+ */
+export async function getRankings({ email } = {}) {
+  if (!isFirebaseConfigured || !db) {
+    const error = new Error('Firebase no está configurado')
+    error.code = 'config-missing'
+    throw error
+  }
+
+  const snapshot = await withTimeout(getDocs(collection(db, RANKING_COLLECTION)))
+
+  const entries = snapshot.docs.map((docSnap) => {
+    const data = docSnap.data() ?? {}
+    return {
+      email: normalizeEmail(data.email || docSnap.id),
+      name: String(data.name ?? '').trim(),
+      score: typeof data.score === 'number' ? data.score : 0,
+      totalQuestions: data.totalQuestions ?? null,
+      livesLeft: data.livesLeft ?? null,
+      createdAt: toMillis(data.createdAt),
+      updatedAt: toMillis(data.updatedAt),
+    }
+  })
+
+  entries.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score
+    if (a.createdAt !== b.createdAt) return a.createdAt - b.createdAt
+    return a.email.localeCompare(b.email)
+  })
+
+  const top = entries.slice(0, RANKING_TOP_SIZE).map((entry, index) => ({
+    ...entry,
+    position: index + 1,
+  }))
+
+  const normalizedEmail = normalizeEmail(email)
+  let position = null
+  let player = null
+
+  if (normalizedEmail) {
+    const index = entries.findIndex((entry) => entry.email === normalizedEmail)
+    if (index !== -1) {
+      position = index + 1
+      player = { ...entries[index], position }
+    }
+  }
+
+  return {
+    top,
+    total: entries.length,
+    position,
+    player,
+    email: normalizedEmail || null,
   }
 }
