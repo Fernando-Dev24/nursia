@@ -4470,14 +4470,19 @@ export const QUESTIONS: Question[] = [
 
 export default QUESTIONS;
 
-export const QUIZ_SIZE = 10;
-export const NORMAL_COUNT = 5;
-export const CLINIC_COUNT = 5;
 export const QUESTIONS_BY_DIFFICULTY: Record<Difficulty, number> = {
-  easy: 2,
-  medium: 2,
-  hard: 1,
+  easy: 5,
+  medium: 5,
+  hard: 5,
 };
+
+export const DIFFICULTIES: Difficulty[] = ["easy", "medium", "hard"];
+export const TYPES: QuestionType[] = ["normal", "clinic"];
+
+export const QUIZ_SIZE = DIFFICULTIES.reduce(
+  (total, difficulty) => total + QUESTIONS_BY_DIFFICULTY[difficulty],
+  0,
+);
 
 function shuffle<T>(items: T[]): T[] {
   const result = [...items];
@@ -4512,40 +4517,43 @@ function pickByTypeAndDifficulty(
   return QUESTIONS.filter((q) => q.type === type && q.difficulty === difficulty);
 }
 
-export function buildQuiz(): Question[] {
-  const normal: Question[] = [
-    ...pickByTypeAndDifficulty("normal", "easy"),
-    ...pickByTypeAndDifficulty("normal", "medium"),
-    ...pickByTypeAndDifficulty("normal", "hard"),
-  ];
-  const clinic: Question[] = [
-    ...pickByTypeAndDifficulty("clinic", "easy"),
-    ...pickByTypeAndDifficulty("clinic", "medium"),
-    ...pickByTypeAndDifficulty("clinic", "hard"),
-  ];
+/**
+ * Toma `count` preguntas de una dificultad repartiendo entre `extraType` y el
+ * tipo contrario lo más parejo posible. Si `count` es impar, `extraType` aporta
+ * la pregunta sobrante. Si un tipo se queda sin preguntas disponibles, el resto
+ * se le cede al contrario para no devolver un quiz incompleto.
+ */
+function pickByDifficulty(
+  difficulty: Difficulty,
+  count: number,
+  extraType: QuestionType,
+): Question[] {
+  const otherType = extraType === "normal" ? "clinic" : "normal";
 
-  const normalSelected: Question[] = [];
-  for (const difficulty of ["easy", "medium", "hard"] as Difficulty[]) {
-    normalSelected.push(
-      ...pickRandom(
-        normal.filter((q) => q.difficulty === difficulty),
-        QUESTIONS_BY_DIFFICULTY[difficulty],
-      ),
-    );
-  }
-  const clinicSelected: Question[] = [];
-  for (const difficulty of ["easy", "medium", "hard"] as Difficulty[]) {
-    clinicSelected.push(
-      ...pickRandom(
-        clinic.filter((q) => q.difficulty === difficulty),
-        QUESTIONS_BY_DIFFICULTY[difficulty],
-      ),
-    );
-  }
+  const fromExtra = pickRandom(
+    pickByTypeAndDifficulty(extraType, difficulty),
+    Math.min(Math.ceil(count / 2), count),
+  );
+  const fromOther = pickRandom(
+    pickByTypeAndDifficulty(otherType, difficulty),
+    Math.min(Math.floor(count / 2), count - fromExtra.length),
+  );
+
+  return [...fromExtra, ...fromOther];
+}
+
+export function buildQuiz(): Question[] {
+  const selected = DIFFICULTIES.flatMap((difficulty, index) =>
+    pickByDifficulty(
+      difficulty,
+      QUESTIONS_BY_DIFFICULTY[difficulty],
+      // Con 15 preguntas el reparto entre tipos no puede ser exacto, así que el
+      // tipo extra se alterna para que ambos queden lo más parejos posible.
+      index % 2 === 0 ? TYPES[0] : TYPES[1],
+    ),
+  );
 
   // Cada pregunta se devuelve con sus opciones barajadas y `correctAnswer`
   // reasignado a la posición nueva (además de barajar el orden del quiz).
-  return shuffle(
-    [...normalSelected, ...clinicSelected].map(shuffleOptions),
-  );
+  return shuffle(selected.map(shuffleOptions));
 }

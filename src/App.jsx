@@ -48,7 +48,7 @@ export default function App() {
 
     const nextIndex = currentIndex + 1
 
-    // Completó las 10 preguntas: mostramos el resultado (aunque perdió su
+    // Completó todas las preguntas: mostramos el resultado (aunque perdió su
     // última vida en la última pregunta, sí terminó el juego).
     if (nextIndex >= quiz.length) {
       setView('result')
